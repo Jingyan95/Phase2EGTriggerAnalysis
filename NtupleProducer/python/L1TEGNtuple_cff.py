@@ -56,9 +56,9 @@ l1EGTriggerNtuplizer_l1tCorr.l1teg_Ntuples = cms.VPSet(
     ntuple_L1TCorrEGStaEE,
     ntuple_L1TCorrTkEleEE,
     ntuple_L1TCorrTkEleEB,
-    ntuple_L1TCorrTkEmEE,
-    ntuple_L1TCorrTkEmEB,
-    ntuple_L1TCorrL2TkEm,
+#    ntuple_L1TCorrTkEmEE,
+#    ntuple_L1TCorrTkEmEB,
+#    ntuple_L1TCorrL2TkEm,
     ntuple_L1TCorrL2TkEle,
     # ntuple_PFCand
 )
