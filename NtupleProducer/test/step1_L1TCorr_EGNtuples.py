@@ -6,6 +6,10 @@
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.Eras.Era_Phase2C9_cff import Phase2C9
+import FWCore.ParameterSet.VarParsing as VarParsing ##parsing argument
+options = VarParsing.VarParsing ('analysis')
+# get and parse the command line arguments
+options.parseArguments()
 
 process = cms.Process('L1REPR',Phase2C9)
 
@@ -24,7 +28,7 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100),
+    input = cms.untracked.int32(options.maxEvents),
     output = cms.optional.untracked.allowed(cms.int32,cms.PSet)
 )
 
@@ -32,7 +36,7 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     # fileNames = cms.untracked.vstring('file:/data/cerminar/Phase2HLTTDRSummer20ReRECOMiniAOD/DoubleElectron_FlatPt-1To100/GEN-SIM-DIGI-RAW-MINIAOD/PU200_111X_mcRun4_realistic_T15_v1-v2/E2F32293-BA24-C646-8060-CE3B4A9E5D4B.root'),
     #fileNames = cms.untracked.vstring('root://eoscms.cern.ch//eos/cms/store/cmst3/group/l1tr/gpetrucc/12_3_X/NewInputs110X/220322/TTbar_PU0/inputs110X_1.root'),
-    fileNames = cms.untracked.vstring('/store/mc/Phase2HLTTDRWinter20DIGI/TT_TuneCP5_14TeV-powheg-pythia8/GEN-SIM-DIGI-RAW/PU200_110X_mcRun4_realistic_v3-v2/110000/005E74D6-B50E-674E-89E6-EAA9A617B476.root'),
+    fileNames = cms.untracked.vstring(options.inputFiles),
     # fileNames = cms.untracked.vstring('file:/data/cerminar/Phase2HLTTDRSummer20ReRECOMiniAOD/TT_TuneCP5_14TeV-powheg-pythia8/FEVT/PU200_111X_mcRun4_realistic_T15_v1-v2/003ACFBC-23B2-EA45-9A12-BECFF07760FC.root'),
     # fileNames = cms.untracked.vstring('file:/data/cerminar/Phase2HLTTDRWinter20DIGI/SingleElectron_PT2to200/GEN-SIM-DIGI-RAW/PU200_110X_mcRun4_realistic_v3_ext2-v2/F32C5A21-F0E9-9149-B04A-883CC704E820.root'),
     secondaryFileNames = cms.untracked.vstring(),
@@ -147,7 +151,7 @@ else:
 
 process.TFileService = cms.Service(
     "TFileService",
-    fileName = cms.string("ntuple.root")
+    fileName = cms.string(options.outputFile)
     )
     
     
@@ -160,6 +164,9 @@ process.extraStuff = cms.Task(
     # process.l1ParticleFlowTask, 
     process.l1ctLayer1Task,
     )
+
+from SimTracker.TrackTriggerAssociation.TTClusterAssociation_cfi import *
+TTClusterAssociatorFromPixelDigis.digiSimLinks = cms.InputTag("simSiPixelDigis","Tracker")
 
 process.TrackTruthTask = cms.Task(
     process.TTClusterAssociatorFromPixelDigis,
@@ -186,7 +193,7 @@ process.TrackTruthTask = cms.Task(
 # process.ntuple_step
 process.ntuple_step.associate(process.extraStuff)
 process.ntuple_step.associate(process.l1ctLayer2EGTask)
-# process.ntuple_step.associate(process.TrackTruthTask)
+process.ntuple_step.associate(process.TrackTruthTask)
 
 process.schedule = cms.Schedule(process.ntuple_step)
 if doTrackTrigger:

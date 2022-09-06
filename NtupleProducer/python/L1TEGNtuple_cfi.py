@@ -48,7 +48,7 @@ ntuple_TTTracks = cms.PSet(
     TTTracks=cms.InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks"),
     fillPFDecodedTracks=cms.bool(False),
     fillStubsInfo=cms.bool(True),
-    fillTrackingParticleTruth=cms.bool(False),
+    fillTrackingParticleTruth=cms.bool(True),
     PFDecodedTracks=cms.InputTag("l1ctLayer1HGCal", 'DecodedTK'),
     MCTruthStubInputTag=cms.InputTag("TTStubAssociatorFromPixelDigis", "StubAccepted"),
     MCTruthTrackInputTag=cms.InputTag("TTTrackAssociatorFromPixelDigis", "Level1TTTracks"),  # MCTruth input
@@ -84,7 +84,8 @@ ntuple_EGStaEE = cms.PSet(
 ntuple_TkEleEllEE = cms.PSet(
     NtupleName=cms.string('L1TEGNtupleTkElectrons'),
     TkElectrons=cms.InputTag("L1TkElectronsEllipticMatchHGC", "EG"),
-    BranchNamePrefix=cms.untracked.string("SimTkEleEE")
+    BranchNamePrefix=cms.untracked.string("SimTkEleEE"),
+    MCTruthTrackInputTag=cms.InputTag("TTTrackAssociatorFromPixelDigis", "Level1TTTracks")
 )
 
 ntuple_TkEmEB = cms.PSet(
@@ -102,7 +103,8 @@ ntuple_TkEmEE = cms.PSet(
 ntuple_TkEleEllEB = cms.PSet(
     NtupleName=cms.string('L1TEGNtupleTkElectrons'),
     TkElectrons=cms.InputTag("L1TkElectronsEllipticMatchCrystal", "EG"),
-    BranchNamePrefix=cms.untracked.string("SimTkEleEB")
+    BranchNamePrefix=cms.untracked.string("SimTkEleEB"),
+    MCTruthTrackInputTag=cms.InputTag("TTTrackAssociatorFromPixelDigis", "Level1TTTracks")
 )
 
 # L1T correlator emulation
@@ -116,13 +118,15 @@ ntuple_L1TCorrEGStaEE = cms.PSet(
 ntuple_L1TCorrTkEleEE = cms.PSet(
     NtupleName=cms.string('L1TEGNtupleTkElectrons'),
     TkElectrons=cms.InputTag("l1ctLayer1EG", "L1TkEleEE"),
-    BranchNamePrefix=cms.untracked.string("TkEleEE")
+    BranchNamePrefix=cms.untracked.string("TkEleEE"),
+    MCTruthTrackInputTag=cms.InputTag("TTTrackAssociatorFromPixelDigis", "Level1TTTracks")
 )
 
 ntuple_L1TCorrTkEleEB = cms.PSet(
     NtupleName=cms.string('L1TEGNtupleTkElectrons'),
     TkElectrons=cms.InputTag("l1ctLayer1EG", "L1TkEleEB"),
-    BranchNamePrefix=cms.untracked.string("TkEleEB")
+    BranchNamePrefix=cms.untracked.string("TkEleEB"),
+    MCTruthTrackInputTag=cms.InputTag("TTTrackAssociatorFromPixelDigis", "Level1TTTracks")
 )
 
 
@@ -142,7 +146,8 @@ ntuple_L1TCorrL2TkEm = cms.PSet(
 ntuple_L1TCorrL2TkEle = cms.PSet(
     NtupleName=cms.string('L1TEGNtupleTkElectrons'),
     TkElectrons=cms.InputTag("l1ctLayer2EG", "L1CtTkElectron"),
-    BranchNamePrefix=cms.untracked.string("L2TkEle")
+    BranchNamePrefix=cms.untracked.string("L2TkEle"),
+    MCTruthTrackInputTag=cms.InputTag("TTTrackAssociatorFromPixelDigis", "Level1TTTracks")
 )
 
 

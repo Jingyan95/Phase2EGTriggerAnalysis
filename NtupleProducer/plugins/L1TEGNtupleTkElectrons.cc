@@ -2,6 +2,8 @@
 
 #include "DataFormats/L1TCorrelator/interface/TkElectron.h"
 #include "DataFormats/L1TCorrelator/interface/TkElectronFwd.h"
+#include "SimTracker/TrackTriggerAssociation/interface/TTTrackAssociationMap.h"
+
 
 class L1TEGNtupleTkElectrons : public L1TEGNtupleBase {
 public:
@@ -14,6 +16,7 @@ private:
   void clear() final;
 
   edm::EDGetToken tkEle_token_;
+  edm::EDGetToken ttTrackMCTruthToken_;
 
   int tkEle_n_;
   std::vector<float> tkEle_pt_;
@@ -27,6 +30,11 @@ private:
   std::vector<float> tkEle_tkChi2_;
   std::vector<float> tkEle_tkPt_;
   std::vector<float> tkEle_tkZ0_;
+  std::vector<float> tkEle_tkPhi_;
+  std::vector<float> tkEle_tkEta_;
+  std::vector<float> tkEle_tkMVA_;
+  std::vector<int>   tkEle_tkFake_;
+  std::vector<int>   tkEle_tkCharge_;
 };
 
 DEFINE_EDM_PLUGIN(L1TEGNtupleFactory, L1TEGNtupleTkElectrons, "L1TEGNtupleTkElectrons");
@@ -38,6 +46,8 @@ void L1TEGNtupleTkElectrons::initialize(TTree& tree,
                                             const edm::ParameterSet& conf,
                                             edm::ConsumesCollector&& collector) {
   tkEle_token_ = collector.consumes<l1t::TkElectronCollection>(conf.getParameter<edm::InputTag>("TkElectrons"));
+  ttTrackMCTruthToken_ =
+      collector.consumes<TTTrackAssociationMap<Ref_Phase2TrackerDigi_> >(conf.getParameter<edm::InputTag>("MCTruthTrackInputTag"));
 
   tree.Branch(branch_name_w_prefix("n").c_str(), &tkEle_n_, branch_name_w_prefix("n/I").c_str());
   tree.Branch(branch_name_w_prefix("pt").c_str(), &tkEle_pt_);
@@ -51,16 +61,25 @@ void L1TEGNtupleTkElectrons::initialize(TTree& tree,
   tree.Branch(branch_name_w_prefix("tkChi2").c_str(), &tkEle_tkChi2_);
   tree.Branch(branch_name_w_prefix("tkPt").c_str(), &tkEle_tkPt_);
   tree.Branch(branch_name_w_prefix("tkZ0").c_str(), &tkEle_tkZ0_);
+  tree.Branch(branch_name_w_prefix("tkPhi").c_str(), &tkEle_tkPhi_);
+  tree.Branch(branch_name_w_prefix("tkEta").c_str(), &tkEle_tkEta_);
+  tree.Branch(branch_name_w_prefix("tkMVA").c_str(), &tkEle_tkMVA_);
+  tree.Branch(branch_name_w_prefix("tkFake").c_str(), &tkEle_tkFake_);
+  tree.Branch(branch_name_w_prefix("tkCharge").c_str(), &tkEle_tkCharge_);
 }
 
 void L1TEGNtupleTkElectrons::fill(const edm::Event& e, const edm::EventSetup& es) {
   // retrieve towers
   edm::Handle<l1t::TkElectronCollection> tkEle_h;
   e.getByToken(tkEle_token_, tkEle_h);
+  edm::Handle<TTTrackAssociationMap<Ref_Phase2TrackerDigi_> > MCTruthTTTrackHandle;
+  e.getByToken(ttTrackMCTruthToken_, MCTruthTTTrackHandle);
   const l1t::TkElectronCollection& tkEle_collection = *tkEle_h;
 
   // triggerTools_.eventSetup(es);
   clear();
+  int charge = 0;
+  int fake = 0;
   // std::cout << branch_name_w_prefix("") << " # ele: " << tkEle_collection.size() << std::endl;
   for (auto tkele_itr : tkEle_collection) {
     tkEle_n_++;
@@ -76,6 +95,26 @@ void L1TEGNtupleTkElectrons::fill(const edm::Event& e, const edm::EventSetup& es
     tkEle_tkChi2_.emplace_back(tkele_itr.trkPtr()->chi2());
     tkEle_tkPt_.emplace_back(tkele_itr.trkPtr()->momentum().perp());
     tkEle_tkZ0_.emplace_back(tkele_itr.trkPtr()->POCA().z());
+    tkEle_tkPhi_.emplace_back(tkele_itr.trkPtr()->momentum().phi());
+    tkEle_tkEta_.emplace_back(tkele_itr.trkPtr()->momentum().eta());
+    tkEle_tkMVA_.emplace_back(tkele_itr.trkPtr()->trkMVA1());
+    edm::Ptr<TrackingParticle> my_tp = MCTruthTTTrackHandle->findTrackingParticlePtr(tkele_itr.trkPtr());
+    if (my_tp.isNull()){
+          fake = 0;
+    }
+    else if (my_tp->eventId().event()>0){
+          fake = 2;
+    }
+    else{
+          fake = 1;
+    }
+    tkEle_tkFake_.emplace_back(fake);
+    if (tkele_itr.trkPtr()->rInv()>0){
+        charge = 1;
+    }else{
+        charge = -1;
+    }
+    tkEle_tkCharge_.emplace_back(charge);
   }
 }
 
@@ -92,4 +131,9 @@ void L1TEGNtupleTkElectrons::clear() {
   tkEle_tkChi2_.clear();
   tkEle_tkPt_.clear();
   tkEle_tkZ0_.clear();
+  tkEle_tkPhi_.clear();
+  tkEle_tkEta_.clear();
+  tkEle_tkMVA_.clear();
+  tkEle_tkFake_.clear();
+  tkEle_tkCharge_.clear();
 }
