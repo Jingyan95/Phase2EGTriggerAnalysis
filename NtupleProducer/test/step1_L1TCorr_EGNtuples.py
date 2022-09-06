@@ -170,7 +170,7 @@ TTClusterAssociatorFromPixelDigis.digiSimLinks = cms.InputTag("simSiPixelDigis",
 
 process.TrackTruthTask = cms.Task(
     process.TTClusterAssociatorFromPixelDigis,
-#    process.TTStubAssociatorFromPixelDigis,
+    process.TTStubAssociatorFromPixelDigis,
     process.TTTrackAssociatorFromPixelDigis)
 # process.load("L1Trigger.Phase2L1ParticleFlow.l1ParticleFlow_cff")
 
