@@ -195,6 +195,8 @@ process.ntuple_step.associate(process.extraStuff)
 process.ntuple_step.associate(process.l1ctLayer2EGTask)
 process.ntuple_step.associate(process.TrackTruthTask)
 
+process.MessageLogger.TrackTriggerHPH = dict(limit = -1)
+
 process.schedule = cms.Schedule(process.ntuple_step)
 if doTrackTrigger:
     process.schedule = cms.Schedule(process.L1TrackTrigger_step, process.ntuple_step)

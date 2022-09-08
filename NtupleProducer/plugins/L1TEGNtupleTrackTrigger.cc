@@ -73,6 +73,7 @@ private:
   std::vector<float> l1track_caloeta_;
   std::vector<float> l1track_calophi_;
   std::vector<int> l1track_tpmatch_;
+  std::vector<int> l1track_fake_;
 
 
   int pfdtk_n_;
@@ -159,7 +160,8 @@ void L1TEGNtupleTrackTrigger::initialize(TTree& tree,
   tree.Branch(branch_name_w_prefix("calophi").c_str(), &l1track_calophi_);
 
   if(fill_mctruth_) {
-    tree.Branch(branch_name_w_prefix("tpmatch").c_str(), &l1track_tpmatch_);    
+    tree.Branch(branch_name_w_prefix("tpmatch").c_str(), &l1track_tpmatch_);
+    tree.Branch(branch_name_w_prefix("fake").c_str(), &l1track_fake_);
   }
   
   if(fill_decoded_pftracks_) {
@@ -331,6 +333,18 @@ void L1TEGNtupleTrackTrigger::fill(const edm::Event &ev, const L1TEGNtupleEventS
       
       unsigned int tpmatch = (tmp_trk_combinatoric) + (tmp_trk_unknown << 1) + (tmp_trk_loose << 2) + (tmp_trk_genuine << 3);
       l1track_tpmatch_.push_back(tpmatch);
+      int fake = 0;
+      edm::Ptr<TrackingParticle> my_tp = MCTruthTTTrackHandle->findTrackingParticlePtr(l1track_ptr);
+      if (my_tp.isNull()){
+          fake = 0;
+      }
+      else if (my_tp->eventId().event()>0){
+          fake = 2;
+      }
+      else{
+          fake = 1;
+      }
+      l1track_fake_.push_back(fake);
       // std::cout << "Track Genuine: " << tmp_trk_genuine
       // << " loose-genuine: " << tmp_trk_loose
       //   /// More than one stub on track is "unknown".
@@ -401,6 +415,7 @@ void L1TEGNtupleTrackTrigger::clear() {
   l1track_caloeta_.clear();
   l1track_calophi_.clear();
   l1track_tpmatch_.clear();
+  l1track_fake_.clear();
   
   pfdtk_n_ = 0;
   pfdtk_pt_.clear();
